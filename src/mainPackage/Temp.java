@@ -35,7 +35,6 @@ public class Temp {
 					System.out.print(rs.getObject(j) + " | ");
 				}
 				System.out.println();
-				
 			}
 
 		} catch (Exception e) {
