@@ -32,8 +32,9 @@ public class Temp {
 
 			while (rs.next()) {
 				for (int j = 1; j < rsm.getColumnCount(); j++) {
-					System.out.println(rs.getObject(j));
+					System.out.print(rs.getObject(j) + " | ");
 				}
+				System.out.println();
 				
 			}
 
