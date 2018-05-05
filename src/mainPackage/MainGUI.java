@@ -19,6 +19,8 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.awt.event.ActionEvent;
 import javax.swing.JScrollPane;
+import javax.swing.JButton;
+import javax.swing.JTextField;
 
 public class MainGUI extends JFrame {
 
@@ -28,6 +30,8 @@ public class MainGUI extends JFrame {
 	private static JTabbedPane tabbedPane;
 	static JTable tableKunden;
 	static JTable tableKonten;
+	static OwnTableModel OwnModelKunden;
+	static OwnTableModel OwnModelKonten;
 
 	static String driver = "com.mysql.jdbc.Driver";
 	static String url = "jdbc:mysql://62.141.46.196/hft?useLegacyDatetimeCode=false&serverTimezone=UTC";
@@ -51,6 +55,10 @@ public class MainGUI extends JFrame {
 
 	static String[] konteHeader = { "ID", "Kontonummer", "BLZ", "Kontoname", "Kontostand" };
 	static Object[][] kontenData;
+	private JTextField textField;
+	private JTextField textField_1;
+	private JTextField textField_2;
+	private JTextField textField_3;
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -96,7 +104,7 @@ public class MainGUI extends JFrame {
 		mntmUpdateTables.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-
+				updateTables();
 			}
 		});
 		mnUpdate.add(mntmUpdateTables);
@@ -122,38 +130,79 @@ public class MainGUI extends JFrame {
 		tabbedPane.setBounds(0, 0, 884, 540);
 		MainPanel.add(tabbedPane);
 
-		updateTables();
+		startTables();
+
+		JPanel jp = new JPanel();
+		tabbedPane.addTab("Create", jp);
+		jp.setLayout(null);
+
+		JButton btnNewButton = new JButton("New button");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					s.execute("INSERT INTO Kontoinformation (kontonr, blz, kontoname, kontostand) VALUES ('"
+							+ textField.getText() + "','" + textField_1.getText() + "','" + textField_2.getText()
+							+ "','" + textField_3.getText() + "')");
+					System.out.println("worked");
+					
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		btnNewButton.setBounds(780, 478, 89, 23);
+		jp.add(btnNewButton);
+
+		textField = new JTextField();
+		textField.setBounds(10, 11, 86, 20);
+		jp.add(textField);
+		textField.setColumns(10);
+
+		textField_1 = new JTextField();
+		textField_1.setBounds(10, 42, 86, 20);
+		jp.add(textField_1);
+		textField_1.setColumns(10);
+
+		textField_2 = new JTextField();
+		textField_2.setBounds(10, 73, 86, 20);
+		jp.add(textField_2);
+		textField_2.setColumns(10);
+
+		textField_3 = new JTextField();
+		textField_3.setBounds(10, 104, 86, 20);
+		jp.add(textField_3);
+		textField_3.setColumns(10);
 
 	}
 
-	protected static void updateTables() {	
-		kundenData = getObjectData("Kunden", false);
-		kontenData = getObjectData("Kontoinformation", true);
+	protected static void startTables() {
 
-		JScrollPane scrollPaneKunden = new JScrollPane();
+		OwnModelKunden = new OwnTableModel(getObjectData("Kunden", false), kundenHeader);
+		tableKunden = new JTable(OwnModelKunden);
+
+		JScrollPane scrollPaneKunden = new JScrollPane(tableKunden);
 		tabbedPane.addTab("Kunden", null, scrollPaneKunden, null);
 
-		JScrollPane scrollPaneKonten = new JScrollPane();
-		tabbedPane.addTab("Konten", null, scrollPaneKonten, null);
+		OwnModelKonten = new OwnTableModel(getObjectData("Kontoinformation", true), konteHeader);
+		tableKonten = new JTable(OwnModelKonten);
 
-		tableKunden = new JTable(kundenData, kundenHeader);
-		tableKunden.setEnabled(false);
-		scrollPaneKunden.setViewportView(tableKunden);
+		JScrollPane scrollPaneKonten = new JScrollPane(tableKonten);
+		tabbedPane.addTab("Kontoinformation", null, scrollPaneKonten, null);
 
-		tableKonten = new JTable(kontenData, konteHeader);
-		tableKunden.setEnabled(false);
-		scrollPaneKonten.setViewportView(tableKonten);
-				
-		tableKunden.repaint();
-		tableKonten.repaint();
+	}
+
+	protected static void updateTables() {
+		OwnModelKunden.updateData(getObjectData("Kunden", false));
+		OwnModelKonten.updateData(getObjectData("Kontoinformation", true));
 	}
 
 	protected static Object[][] getObjectData(String table, boolean id) {
-		Object[][] end = new Object[getRowCount(table)][getColCount(table)];
+		Object[][] end = new Object[getRowCount(table)][getColCount(table) - 1];
 
 		int start = 2;
 
 		if (id) {
+			end = new Object[getRowCount(table)][getColCount(table)];
 			start = 1;
 		}
 
