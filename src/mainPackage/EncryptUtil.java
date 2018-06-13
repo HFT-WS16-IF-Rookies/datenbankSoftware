@@ -12,7 +12,10 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 public class EncryptUtil {
-	public static byte[] encrypt(char[] plainText, char[] key) {
+
+	static char[] key = { 'a', 'b', 'c' };
+
+	public static byte[] encrypt(char[] plainText) {
 		try {
 			byte[] clean = toBytes(plainText);
 
@@ -43,7 +46,7 @@ public class EncryptUtil {
 		return null;
 	}
 
-	public static char[] decrypt(byte[] encryptedIvTextBytes, char[] key) throws Exception {
+	public static char[] decrypt(byte[] encryptedIvTextBytes) throws Exception {
 		try {
 			int ivSize = 16;
 			int keySize = 16;
