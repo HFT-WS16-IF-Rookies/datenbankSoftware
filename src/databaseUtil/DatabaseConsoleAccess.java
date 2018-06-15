@@ -1,28 +1,71 @@
 package databaseUtil;
 
+import java.sql.ResultSet;
+
 public class DatabaseConsoleAccess {
 
-	public static boolean createKunde(String vorname, String nachname) {
-		return createKunde(vorname, nachname);
+	public static void createKunde(String vorname, String nachname) {
+		DatabaseKunde.createKunde(vorname, nachname);
 	}
 
-	public static boolean updateKunde(String vornameAlt, String nachnameAlt, String vornameNeu, String nachnameNeu) {
-		return updateKunde(vornameAlt, nachnameAlt, vornameNeu, nachnameNeu);
+	public static void updateKunde(String vornameAlt, String nachnameAlt, String vornameNeu, String nachnameNeu) {
+		DatabaseKunde.updateKunde(vornameAlt, nachnameAlt, vornameNeu, nachnameNeu);
 	}
 
-	public static boolean deleteKunde(String vorname, String nachname) {
-		return deleteKunde(vorname, nachname);
+	public static void deleteKunde(String vorname, String nachname) {
+		DatabaseKunde.deleteKunde(vorname, nachname);
 	}
 
 	public static int getKundenNummer(String vorname, String nachname) {
-		return getKundenNummer(vorname, nachname);
+		return DatabaseKunde.getKundenNummer(vorname, nachname);
 	}
 
-	public static boolean createOnlineAccount(String id, String password, int kundennummer) {
-		return createOnlineAccount(id, password, kundennummer);
+	public static void createOnlineAccount(String id, String password, int kontonummer) {
+		DatabaseOnlineBanking.createOnlineAccount(id, password, kontonummer);
 	}
 
-	public static boolean deleteOnlineAccount(String id, String password, int kundennummer) {
-		return deleteOnlineAccount(id, password, kundennummer);
+	public static void deleteOnlineAccount(String id, String password, int kontonummer) {
+		DatabaseOnlineBanking.deleteOnlineAccount(id, password, kontonummer);
+	}
+
+	public static void createUeberweisung(String sender, String empfaenger, String art, double betrag, String zweck,
+			int kontonummer) {
+		DatabaseUeberweisung.createUeberweisung(sender, empfaenger, art, betrag, zweck, kontonummer);
+	}
+
+	public static void setGuthaben(double betrag, int kontonummer) {
+		DatabaseKonto.setGuthaben(betrag, kontonummer);
+	}
+
+	public static void createKonto(int kundennummer, String typ, String eroefnnug) {
+		DatabaseKonto.createKonto(kundennummer, typ, eroefnnug);
+	}
+
+	public static void deleteKonto(int kontonummer) {
+		DatabaseKonto.deleteKonto(kontonummer);
+	}
+
+	public static ResultSet getAllKunden() {
+		return DatabaseKunde.getAllKunden();
+	}
+
+	public static ResultSet getAllKonten() {
+		return DatabaseKonto.getAllKonten();
+	}
+
+	public static ResultSet getAllOBAccounts() {
+		return DatabaseOnlineBanking.getAllOBAccounts();
+	}
+
+	public static ResultSet getAllUeberweisungen() {
+		return DatabaseUeberweisung.getAllUeberweisungen();
+	}
+
+	public static ResultSet getKontenEinesKunden(int kundennummer) {
+		return DatabaseKonto.getKontenEinesKunden(kundennummer);
+	}
+
+	public static ResultSet getKundeOBAccount(int kundennummer) {
+		return DatabaseOnlineBanking.getKundeOBAccount(kundennummer);
 	}
 }

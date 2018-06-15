@@ -3,9 +3,11 @@ package databaseUtil;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import mainPackage.BasicUtil;
 import mainPackage.EncryptUtil;
 
 public class DatabaseUeberweisung {
@@ -26,29 +28,35 @@ public class DatabaseUeberweisung {
 		}
 	}
 
-	protected static boolean createUeberweisung(String sender, String empfaenger, String art, double betrag,
-			String zweck, int kundennummer) {
+	protected static ResultSet getAllUeberweisungen() {
+		ResultSet rs = null;
+		try {
+			openDatabase();
+			PreparedStatement stmt = c.prepareStatement("SELECT * FROM Ueberweisung");
+			rs = stmt.executeQuery();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return rs;
+	}
+
+	protected static void createUeberweisung(String sender, String empfaenger, String art, double betrag, String zweck,
+			int kontonummer) {
 		PreparedStatement prepS = null;
-		String sqlCreateUeberweisung = "INSERT INTO Ueberweisung (Sender, Empfaenger, Art, Betrag, Verwendungszweck, Datum) VALUES('?','?','?','?','?','?')";
-		String sqlCreateUeberweisungJoin = "INSERT INTO UeberweisungsVerknuepfung (Kundennummer, Uerberweisungsummer) VALUES('?', '?')";
-		boolean success = false;
+		String sqlCreateUeberweisung = "INSERT INTO Ueberweisung (Kontonummer, Sender, Empfaenger, Art, Betrag, Verwendungszweck, Datum) VALUES(?,?,?,?,?,?,?)";
 		try {
 			openDatabase();
 			prepS = c.prepareStatement(sqlCreateUeberweisung);
-			prepS.setBytes(1, EncryptUtil.encrypt(sender.toCharArray()));
-			prepS.setBytes(2, EncryptUtil.encrypt(empfaenger.toCharArray()));
-			prepS.setString(3, art);
-			prepS.setBytes(4, EncryptUtil.encrypt(Double.toString(betrag).toCharArray()));
-			prepS.setBytes(5, EncryptUtil.encrypt(zweck.toCharArray()));
-			// prepS.setString(6, EncryptUtil.encrypt(todaysDate()));
+			char[] key = { 'a' };
+			prepS.setInt(1, kontonummer);
+			prepS.setBytes(2, EncryptUtil.encrypt(sender.toCharArray(), key));
+			prepS.setBytes(3, EncryptUtil.encrypt(empfaenger.toCharArray(), key));
+			prepS.setBytes(4, EncryptUtil.encrypt(art.toCharArray(), key));
+			prepS.setBytes(5, EncryptUtil.encrypt(Double.toString(betrag).toCharArray(), key));
+			prepS.setBytes(6, EncryptUtil.encrypt(zweck.toCharArray(), key));
+			prepS.setBytes(7, EncryptUtil.encrypt(BasicUtil.todaysDate().toCharArray(), key));
 
-			success = prepS.execute();
-
-			prepS = c.prepareStatement(sqlCreateUeberweisungJoin);
-			prepS.setInt(1, kundennummer);
-			// prepS.setBytes(2, EncryptUtil.encrypt(id.toCharArray()));
-
-			success = prepS.execute();
+			prepS.execute();
 
 			if (prepS != null) {
 				prepS.close();
@@ -64,6 +72,5 @@ public class DatabaseUeberweisung {
 				e.printStackTrace();
 			}
 		}
-		return success;
 	}
 }

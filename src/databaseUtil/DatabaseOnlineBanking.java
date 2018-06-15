@@ -1,8 +1,10 @@
+
 package databaseUtil;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -26,24 +28,49 @@ public class DatabaseOnlineBanking {
 		}
 	}
 
-	protected static boolean createOnlineAccount(String id, String pw, int kundennummer) {
+	protected static ResultSet getAllOBAccounts() {
+		ResultSet rs = null;
+		try {
+			openDatabase();
+			PreparedStatement stmt = c.prepareStatement("SELECT * FROM OnlineBanking");
+			rs = stmt.executeQuery();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return rs;
+	}
+
+	protected static ResultSet getKundeOBAccount(int kundennummer) {
+		ResultSet rs = null;
+		try {
+			openDatabase();
+			PreparedStatement stmt = c.prepareStatement(
+					"SELECT ba.ID, ba.Passwort FROM OnlineBanking AS ba inner join OnlineBankingBesitzer As bb on ba.ID=bb.ID WHERE bb.Kontonummer="
+							+ kundennummer);
+			rs = stmt.executeQuery();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return rs;
+	}
+
+	protected static void createOnlineAccount(String id, String pw, int kontonummer) {
 		PreparedStatement prepS = null;
-		String sqlInsertOnlineBanking = "INSERT INTO OnlineBanking (ID, Passwort) VALUES('?','?')";
-		String sqlInsertOnlineJoin = "INSERT INTO OnlineBankingVerknuepfung (Kundennummer, ID) VALUES('?', '?')";
-		boolean success = false;
+		String sqlInsertOnlineBanking = "INSERT INTO OnlineBanking (ID, Passwort) VALUES(?,?)";
+		String sqlInsertOnlineJoin = "INSERT INTO OnlineBankingBesitzer (Kontonummer, ID) VALUES(?, ?)";
 		try {
 			openDatabase();
 			prepS = c.prepareStatement(sqlInsertOnlineBanking);
-			prepS.setBytes(1, EncryptUtil.encrypt(id.toCharArray()));
-			prepS.setBytes(2, EncryptUtil.encrypt(pw.toCharArray()));
+			char[] key = { 'a' };
+			prepS.setString(1, id);
+			prepS.setBytes(2, EncryptUtil.encrypt(pw.toCharArray(), key));
 
-			success = prepS.execute();
+			prepS.execute();
 
 			prepS = c.prepareStatement(sqlInsertOnlineJoin);
-			prepS.setInt(1, kundennummer);
-			prepS.setBytes(2, EncryptUtil.encrypt(id.toCharArray()));
-
-			success = prepS.execute();
+			prepS.setInt(1, kontonummer);
+			prepS.setString(2, id);
+			prepS.execute();
 
 			if (prepS != null) {
 				prepS.close();
@@ -59,27 +86,26 @@ public class DatabaseOnlineBanking {
 				e.printStackTrace();
 			}
 		}
-		return success;
 	}
 
-	protected static boolean deleteOnlineAccount(String id, String password, int kundennummer) {
+	protected static void deleteOnlineAccount(String id, String password, int kontonummer) {
 		PreparedStatement prepS = null;
-		String sqlDeleteOnlineBanking = "DELETE FROM OnlineBanking WHERE ID='?' AND Passwort='?'";
-		String sqlDeleteOnlineJoin = "DELETE FROM OnlineBanking WHERE Kundennumer='?' AND ID='?'";
-		boolean success = false;
+		String sqlDeleteOnlineBanking = "DELETE FROM OnlineBanking WHERE ID=? AND Passwort=?";
+		String sqlDeleteOnlineJoin = "DELETE FROM OnlineBankingBesitzer WHERE Kontonummer=? AND ID=?";
 		try {
 			openDatabase();
 			prepS = c.prepareStatement(sqlDeleteOnlineBanking);
-			prepS.setBytes(1, EncryptUtil.encrypt(id.toCharArray()));
-			prepS.setBytes(2, EncryptUtil.encrypt(password.toCharArray()));
+			char[] key = { 'a' };
+			prepS.setString(1, id);
+			prepS.setBytes(2, EncryptUtil.encrypt(password.toCharArray(), key));
 
-			success = prepS.execute();
+			prepS.execute();
 
 			prepS = c.prepareStatement(sqlDeleteOnlineJoin);
-			prepS.setInt(1, kundennummer);
-			prepS.setBytes(2, EncryptUtil.encrypt(id.toCharArray()));
+			prepS.setInt(1, kontonummer);
+			prepS.setString(2, id);
 
-			success = prepS.execute();
+			prepS.execute();
 
 			if (prepS != null) {
 				prepS.close();
@@ -95,6 +121,5 @@ public class DatabaseOnlineBanking {
 				e.printStackTrace();
 			}
 		}
-		return success;
 	}
 }

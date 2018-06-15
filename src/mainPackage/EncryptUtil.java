@@ -13,9 +13,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class EncryptUtil {
 
-	static char[] key = { 'a', 'b', 'c' };
-
-	public static byte[] encrypt(char[] plainText) {
+	public static byte[] encrypt(char[] plainText, char[] key) {
 		try {
 			byte[] clean = toBytes(plainText);
 
@@ -46,7 +44,7 @@ public class EncryptUtil {
 		return null;
 	}
 
-	public static char[] decrypt(byte[] encryptedIvTextBytes) throws Exception {
+	public static char[] decrypt(byte[] encryptedIvTextBytes, char[] key) throws Exception {
 		try {
 			int ivSize = 16;
 			int keySize = 16;
@@ -82,8 +80,6 @@ public class EncryptUtil {
 		ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
 		CharBuffer charBuffer = Charset.forName("UTF-8").decode(byteBuffer);
 		char[] chars = Arrays.copyOfRange(charBuffer.array(), charBuffer.position(), charBuffer.limit());
-		Arrays.fill(charBuffer.array(), '\u0000');
-		Arrays.fill(byteBuffer.array(), (byte) 0);
 		return chars;
 	}
 
@@ -91,8 +87,6 @@ public class EncryptUtil {
 		CharBuffer charBuffer = CharBuffer.wrap(chars);
 		ByteBuffer byteBuffer = Charset.forName("UTF-8").encode(charBuffer);
 		byte[] bytes = Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit());
-		Arrays.fill(charBuffer.array(), '\u0000');
-		Arrays.fill(byteBuffer.array(), (byte) 0);
 		return bytes;
 	}
 }
