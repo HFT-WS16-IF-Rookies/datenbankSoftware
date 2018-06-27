@@ -1,14 +1,12 @@
 package databaseUtil;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
-import mainPackage.BasicUtil;
-import mainPackage.EncryptUtil;
 
 public class DatabaseUeberweisung {
 
@@ -40,21 +38,34 @@ public class DatabaseUeberweisung {
 		return rs;
 	}
 
+	protected static ResultSet getUeberweisungenEinesKontos(int kundennummer) {
+		ResultSet rs = null;
+		try {
+			openDatabase();
+			Statement stmt = c.createStatement();
+			rs = stmt.executeQuery(
+					"SELECT ba.* FROM Ueberweisung AS ba inner join Konto As ko on ko.kontonummer=ba.kontonummer WHERE ko.kontonummer="
+							+ kundennummer);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return rs;
+	}
+
 	protected static void createUeberweisung(String sender, String empfaenger, String art, double betrag, String zweck,
 			int kontonummer) {
 		PreparedStatement prepS = null;
-		String sqlCreateUeberweisung = "INSERT INTO Ueberweisung (Kontonummer, Sender, Empfaenger, Art, Betrag, Verwendungszweck, Datum) VALUES(?,?,?,?,?,?,?)";
+		String sqlCreateUeberweisung = "INSERT INTO Ueberweisung (kontonummer, sender, empfaenger, art, betrag, verwendungszweck, datum) VALUES(?,?,?,?,?,?,?)";
 		try {
 			openDatabase();
 			prepS = c.prepareStatement(sqlCreateUeberweisung);
-			char[] key = { 'a' };
 			prepS.setInt(1, kontonummer);
-			prepS.setBytes(2, EncryptUtil.encrypt(sender.toCharArray(), key));
-			prepS.setBytes(3, EncryptUtil.encrypt(empfaenger.toCharArray(), key));
-			prepS.setBytes(4, EncryptUtil.encrypt(art.toCharArray(), key));
-			prepS.setBytes(5, EncryptUtil.encrypt(Double.toString(betrag).toCharArray(), key));
-			prepS.setBytes(6, EncryptUtil.encrypt(zweck.toCharArray(), key));
-			prepS.setBytes(7, EncryptUtil.encrypt(BasicUtil.todaysDate().toCharArray(), key));
+			prepS.setString(2, sender);
+			prepS.setString(3, empfaenger);
+			prepS.setString(4, art);
+			prepS.setDouble(5, betrag);
+			prepS.setString(6, zweck);
+			prepS.setDate(7, new Date(System.currentTimeMillis()));
 
 			prepS.execute();
 

@@ -8,10 +8,6 @@ public class DatabaseConsoleAccess {
 		DatabaseKunde.createKunde(vorname, nachname);
 	}
 
-	public static void updateKunde(String vornameAlt, String nachnameAlt, String vornameNeu, String nachnameNeu) {
-		DatabaseKunde.updateKunde(vornameAlt, nachnameAlt, vornameNeu, nachnameNeu);
-	}
-
 	public static void deleteKunde(String vorname, String nachname) {
 		DatabaseKunde.deleteKunde(vorname, nachname);
 	}
@@ -37,8 +33,8 @@ public class DatabaseConsoleAccess {
 		DatabaseKonto.setGuthaben(betrag, kontonummer);
 	}
 
-	public static void createKonto(int kundennummer, String typ, String eroefnnug) {
-		DatabaseKonto.createKonto(kundennummer, typ, eroefnnug);
+	public static void createKonto(int kundennummer, String typ) {
+		DatabaseKonto.createKonto(kundennummer, typ);
 	}
 
 	public static void deleteKonto(int kontonummer) {
@@ -67,5 +63,9 @@ public class DatabaseConsoleAccess {
 
 	public static ResultSet getKundeOBAccount(int kundennummer) {
 		return DatabaseOnlineBanking.getKundeOBAccount(kundennummer);
+	}
+
+	public static ResultSet getUeberweisungenEinesKontos(int kontonummer) {
+		return DatabaseUeberweisung.getUeberweisungenEinesKontos(kontonummer);
 	}
 }

@@ -45,7 +45,7 @@ public class DatabaseOnlineBanking {
 		try {
 			openDatabase();
 			PreparedStatement stmt = c.prepareStatement(
-					"SELECT ba.ID, ba.Passwort FROM OnlineBanking AS ba inner join OnlineBankingBesitzer As bb on ba.ID=bb.ID WHERE bb.Kontonummer="
+					"SELECT ba.id, ba.passwort FROM OnlineBanking AS ba inner join OnlineBankingBesitzer As bb on ba.id=bb.id WHERE bb.kontonummer="
 							+ kundennummer);
 			rs = stmt.executeQuery();
 		} catch (SQLException e) {
@@ -56,14 +56,13 @@ public class DatabaseOnlineBanking {
 
 	protected static void createOnlineAccount(String id, String pw, int kontonummer) {
 		PreparedStatement prepS = null;
-		String sqlInsertOnlineBanking = "INSERT INTO OnlineBanking (ID, Passwort) VALUES(?,?)";
-		String sqlInsertOnlineJoin = "INSERT INTO OnlineBankingBesitzer (Kontonummer, ID) VALUES(?, ?)";
+		String sqlInsertOnlineBanking = "INSERT INTO OnlineBanking (id, passwort) VALUES(?,?)";
+		String sqlInsertOnlineJoin = "INSERT INTO OnlineBankingBesitzer (kundennummer, id) VALUES(?, ?)";
 		try {
 			openDatabase();
 			prepS = c.prepareStatement(sqlInsertOnlineBanking);
-			char[] key = { 'a' };
 			prepS.setString(1, id);
-			prepS.setBytes(2, EncryptUtil.encrypt(pw.toCharArray(), key));
+			prepS.setString(2, pw);
 
 			prepS.execute();
 

@@ -6,8 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
-import mainPackage.EncryptUtil;
+import java.sql.Date;
 
 public class DatabaseKunde {
 
@@ -41,14 +40,13 @@ public class DatabaseKunde {
 
 	protected static int getKundenNummer(String vorname, String nachname) {
 		PreparedStatement prepS = null;
-		String sqlGetKNr = "SELECT Kundennummer FROM Kunde WHERE Vorname=? AND Nachname=?";
+		String sqlGetKNr = "SELECT Kundennummer FROM Kunde WHERE vorname=? AND nachname=?";
 		int toReturn = 0;
 		try {
 			openDatabase();
 			prepS = c.prepareStatement(sqlGetKNr);
-			char[] key = { 'a' };
-			prepS.setBytes(1, EncryptUtil.encrypt(vorname.toCharArray(), key));
-			prepS.setBytes(2, EncryptUtil.encrypt(nachname.toCharArray(), key));
+			prepS.setString(1, vorname);
+			prepS.setString(2, nachname);
 
 			ResultSet tempRS = prepS.executeQuery();
 			if (tempRS.next()) {
@@ -75,42 +73,14 @@ public class DatabaseKunde {
 
 	protected static void createKunde(String vorname, String nachname) {
 		PreparedStatement prepS = null;
-		String sqlInsertKunde = "INSERT INTO Kunde (Vorname, Nachname) VALUES(?,?)";
+		String sqlInsertKunde = "INSERT INTO Kunde (kundennummer, vorname, nachname, gelistetSeit) VALUES(?,?,?,?)";
 		try {
 			openDatabase();
 			prepS = c.prepareStatement(sqlInsertKunde);
-			char[] key = { 'a' };
-			prepS.setBytes(1, EncryptUtil.encrypt(vorname.toCharArray(), key));
-			prepS.setBytes(2, EncryptUtil.encrypt(nachname.toCharArray(), key));
-
-			prepS.execute();
-			if (prepS != null) {
-				prepS.close();
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (c != null) {
-					c.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	protected static void updateKunde(String vornameAlt, String nachnameAlt, String vornameNeu, String nachnameNeu) {
-		PreparedStatement prepS = null;
-		String sql = "UPDATE Kunde SET Vorname=?, Nachname=? WHERE Vorname=? AND Nachname=?";
-		try {
-			openDatabase();
-			prepS = c.prepareStatement(sql);
-			char[] key = { 'a' };
-			prepS.setBytes(1, EncryptUtil.encrypt(vornameNeu.toCharArray(), key));
-			prepS.setBytes(2, EncryptUtil.encrypt(nachnameNeu.toCharArray(), key));
-			prepS.setBytes(3, EncryptUtil.encrypt(vornameAlt.toCharArray(), key));
-			prepS.setBytes(4, EncryptUtil.encrypt(nachnameAlt.toCharArray(), key));
+			prepS.setInt(1, 4);
+			prepS.setString(2, vorname);
+			prepS.setString(3, nachname);
+			prepS.setDate(4, new Date(System.currentTimeMillis()));
 
 			prepS.execute();
 			if (prepS != null) {
@@ -131,13 +101,12 @@ public class DatabaseKunde {
 
 	protected static void deleteKunde(String vorname, String nachname) {
 		PreparedStatement prepS = null;
-		String sql = "DELETE FROM Kunde WHERE Vorname=? AND Nachname=?";
+		String sql = "DELETE FROM Kunde WHERE vorname=? AND nachname=?";
 		try {
 			openDatabase();
 			prepS = c.prepareStatement(sql);
-			char[] key = { 'a' };
-			prepS.setBytes(1, EncryptUtil.encrypt(vorname.toCharArray(), key));
-			prepS.setBytes(2, EncryptUtil.encrypt(nachname.toCharArray(), key));
+			prepS.setString(1, vorname);
+			prepS.setString(2, nachname);
 
 			prepS.execute();
 			if (prepS != null) {
